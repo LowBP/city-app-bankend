@@ -93,12 +93,43 @@ describe('City Controller', () => {
 
     it('should get a list of cities with invalid pagination parameters (negative page)', async () => {
         const response = await request(app).get('/api/cities?page=-1&pageSize=10');
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty('cities');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid pagination parameters');
     });
 
     it('should get a list of cities with invalid sorting parameters', async () => {
         const response = await request(app).get('/api/cities?sortBy=invalidField&sortOrder=invalidOrder');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid sortBy parameter');
+    });
+
+
+    it('should return 400 Bad Request for invalid sortBy parameter', async () => {
+        const response = await request(app).get('/api/cities?sortBy=invalidField');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid sortBy parameter');
+    });
+
+    it('should return 400 Bad Request for invalid sortOrder parameter', async () => {
+        const response = await request(app).get('/api/cities?sortOrder=invalidOrder');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid sortOrder parameter');
+    });
+
+    it('should return 400 Bad Request for negative page parameter', async () => {
+        const response = await request(app).get('/api/cities?page=-1');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid pagination parameters');
+    });
+
+    it('should return 400 Bad Request for negative pageSize parameter', async () => {
+        const response = await request(app).get('/api/cities?pageSize=-1');
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('error', 'Invalid pagination parameters');
+    });
+
+    it('should return 200 OK for valid pagination parameters', async () => {
+        const response = await request(app).get('/api/cities?page=1&pageSize=10');
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('cities');
     });

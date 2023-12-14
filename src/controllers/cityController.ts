@@ -6,8 +6,34 @@ export const getCitiesController = (req: Request, res: Response): void => {
     try {
         const allCities: ICity[] = getCities();
 
-        // Search filter
+        // Validation for query parameters
         const searchTerm: string = req.query.search as string || '';
+        const sortBy: string = req.query.sortBy as string || '';
+        const sortOrder: string = req.query.sortOrder as string || '';
+        const page: number = parseInt(req.query.page as string, 10) || 1;
+        const pageSize: number = parseInt(req.query.pageSize as string, 10) || 10;
+
+        // Check if sortBy is valid
+        const validSortFields = ['population', 'founded', 'name'];
+        if (sortBy && !validSortFields.includes(sortBy)) {
+            res.status(400).json({ error: 'Invalid sortBy parameter' });
+            return;
+        }
+
+        // Check if sortOrder is valid
+        const validSortOrders = ['asc', 'desc'];
+        if (sortOrder && !validSortOrders.includes(sortOrder)) {
+            res.status(400).json({ error: 'Invalid sortOrder parameter' });
+            return;
+        }
+
+        // Check if page and pageSize are non-negative
+        if (page < 1 || pageSize < 1) {
+            res.status(400).json({ error: 'Invalid pagination parameters' });
+            return;
+        }
+
+        // Search filter
         const filteredCities: ICity[] = [...searchTerm
             ? allCities.filter(city =>
                 Object.values(city).some(value =>
@@ -16,12 +42,8 @@ export const getCitiesController = (req: Request, res: Response): void => {
             )
             : allCities];
 
-        // Sorting parameters (population, founded, name)
-        const sortBy: string = req.query.sortBy as string;
-        const sortOrder: string = req.query.sortOrder as string;
 
         // Sort the filtered cities based on the selected criteria
-
         const sortedCities = sortBy && sortOrder ? filteredCities.sort((a, b) => {
             switch (sortBy) {
                 case 'population':
@@ -45,9 +67,6 @@ export const getCitiesController = (req: Request, res: Response): void => {
 
 
         // Pagination parameters
-        const page = parseInt(req.query.page as string, 10) || 1;
-        const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
-
         const startIndex = (page - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         const paginatedCities = sortedCities.slice(startIndex, endIndex);
