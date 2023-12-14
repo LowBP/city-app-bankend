@@ -30,8 +30,8 @@ export const getCitiesController = (req: Request, res: Response): void => {
                     return sortOrder === 'asc' ? populationA - populationB : populationB - populationA;
 
                 case 'founded':
-                    const foundedA = parseInt(a.population, 10);
-                    const foundedB = parseInt(b.population, 10);
+                    const foundedA = parseInt(a.founded.replace(/[^0-9]/g, ''), 10);
+                    const foundedB = parseInt(b.founded.replace(/[^0-9]/g, ''), 10);
                     return sortOrder === 'asc' ? foundedA - foundedB : foundedB - foundedA;
 
                 default:
