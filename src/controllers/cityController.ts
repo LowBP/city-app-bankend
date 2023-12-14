@@ -1,9 +1,15 @@
 import { Request, Response } from 'express';
 import { getCities } from '../services/cityService';
 import { ICity } from '../types';
+import { logger } from '../utils/logger';
 
 export const getCitiesController = (req: Request, res: Response): void => {
     try {
+
+        // Log important information
+        logger.info('Request received for getCitiesController:', { query: req.query });
+
+
         const allCities: ICity[] = getCities();
 
         // Validation for query parameters
@@ -86,7 +92,7 @@ export const getCitiesController = (req: Request, res: Response): void => {
             res.status(200).json(response);
         }, 1500);
     } catch (error) {
-        console.error('Error fetching cities:', error);
+        logger.error('Error fetching cities:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
